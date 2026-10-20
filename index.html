@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cerimonialista</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#24403a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cerimonial">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+
+<style>
+:root{--bg:#eef1ee;--card:#fff;--tx:#1d2b27;--mu:#66756f;--deep:#24403a;--gold:#b8893b;--gl:#e3c07f;--ln:#dde4e0;--ok:#2f7d5b;--onok:#fff;--warn:#b5475e;--on:#24403a;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#101816;--card:#1a2522;--tx:#e8efec;--mu:#92a39c;--deep:#16302b;--ln:#2a3935;--ok:#5cc08f;--onok:#062016;--warn:#e07a8f;--on:#e3c07f;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--deep);color:#f4efe4;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 20px;border-radius:0 0 28px 28px}
+.in,main{max-width:640px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.brand{font-size:.85rem;color:#c9d6d0}
+#newEv{background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:7px 14px;font-size:.85rem}
+#ev{width:100%;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23e3c07f' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 4px center;color:#fff;border:0;font:600 1.7rem/1.2 Georgia,"Iowan Old Style",serif;padding:4px 28px 4px 0;-webkit-appearance:none;appearance:none;text-overflow:ellipsis}
+#ev option{color:#000}
+#info{color:#c9d6d0;font-size:.9rem}
+#cd{display:flex;align-items:baseline;gap:8px;margin-top:12px}
+#cd b{font:600 2.4rem/1 Georgia,serif;color:var(--gl)}
+#cd span{color:#c9d6d0;font-size:.9rem}
+main{padding:16px 12px 110px}
+button,input{font:inherit;color:var(--tx)}
+button{cursor:pointer;border:0;background:none}
+input{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:11px 12px;min-width:0;flex:1 1 130px}
+input:focus,button:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#form{display:flex;flex-wrap:wrap;gap:8px;background:var(--card);border-radius:18px;padding:12px;margin-bottom:12px}
+#form:empty{display:none}
+button.p{flex:1 1 100%;background:var(--deep);color:#fff;border-radius:12px;padding:12px;font-weight:600}
+.sum{color:var(--mu);font-size:.9rem;margin:4px 2px 10px}
+.sum:empty{display:none}
+.card{background:var(--card);border-radius:14px;padding:12px 12px 12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;border-left:4px solid var(--ln)}
+.card.ok{border-left-color:var(--ok)}
+.card .i{flex:1;min-width:0}
+.card b{display:block;overflow-wrap:anywhere;font-weight:600}
+.card small{color:var(--mu)}
+.card.done b{text-decoration:line-through;color:var(--mu)}
+.tg{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tg button{padding:6px 11px;font-size:.8rem;border:1px solid var(--ln);border-radius:999px}
+.tg button.on{background:var(--ok);border-color:var(--ok);color:var(--onok)}
+.x{color:var(--mu);font-size:1.3rem;padding:2px 8px}
+.chip{background:var(--card);border:1px solid var(--ln);border-radius:999px;padding:4px 10px;font-size:.8rem}
+.chip.bad{border-color:var(--warn);color:var(--warn)}
+a{text-decoration:none;font-size:1.25rem}
+.empty{color:var(--mu);text-align:center;padding:32px 16px}
+.hero{background:var(--card);border-radius:20px;padding:18px;margin-bottom:10px}
+.big{font:600 3rem/1 Georgia,serif}
+.big small{font-size:1.3rem;color:var(--mu);font-weight:400}
+.lb{color:var(--mu);margin:6px 0 12px}
+.bar{height:8px;background:var(--ln);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:9px}
+.next{display:flex;gap:14px;align-items:center;background:var(--deep);color:#fff;border-radius:20px;padding:16px 18px;margin-bottom:10px}
+.next .t{font:600 1.8rem Georgia,serif;color:var(--gl)}
+.next small{color:#c9d6d0;display:block}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:var(--card);border-radius:16px;padding:12px;min-width:0}
+.tile b{font:600 1.4rem Georgia,serif;display:block;overflow-wrap:anywhere}
+.tile span{color:var(--mu);font-size:.8rem;display:block}
+.tile.w{box-shadow:inset 0 0 0 2px var(--warn)}
+.foot{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:22px;justify-content:center}
+.foot button{color:var(--mu);font-size:.85rem;text-decoration:underline;padding:6px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--ln);padding:6px 4px calc(env(safe-area-inset-bottom,0px) + 6px);z-index:10}
+nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.62rem;color:var(--mu);padding:5px 0;border-radius:10px}
+nav button span{font-size:1.25rem;line-height:1;filter:grayscale(1);opacity:.7}
+nav button.on{color:var(--on);font-weight:700;background:var(--bg)}
+nav button.on span{filter:none;opacity:1}
+#alert{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:30;display:none}
+#alert .card{border-left:0}
+</style>
+</head>
+<body>
+<div id="alert"></div>
+<header><div class="in"><div class="top"><span class="brand">Cerimonialista</span><button id="newEv">+ Evento</button></div>
+<select id="ev"></select><div id="info"></div><div id="cd"></div></div></header>
+<main>
+<div id="form"></div>
+<div id="sum" class="sum"></div>
+<div id="map"></div>
+<div id="list"></div>
+<div class="foot"><button id="bk">Copiar backup</button><button id="rs">Restaurar</button><button id="seats">Lugares/mesa</button><button id="dl">Excluir evento</button></div>
+</main>
+<nav id="nav"></nav>
+<script>
+var IC={dash:"📊",guests:"🎟️",timeline:"🕐",suppliers:"🤝",tasks:"✅",money:"💰"},SH={dash:"Painel",guests:"Convidados",timeline:"Agenda",suppliers:"Fornecedores",tasks:"Tarefas",money:"Financeiro"};
+var KEY="cerimonialista_v1";
+var T={
+dash:{t:"Painel",f:[],g:[]},
+guests:{t:"Convidados",f:[["name","Nome"],["table","Mesa"],["phone","Telefone"]],g:[["rsvp","Confirmou"],["in","Chegou"]]},
+timeline:{t:"Cronograma",f:[["time","Hora","time"],["what","Atividade"],["who","Responsável"]],g:[["did","Feito"]]},
+suppliers:{t:"Fornecedores",f:[["name","Nome"],["role","Serviço"],["phone","Telefone"]],g:[["here","Chegou"]]},
+tasks:{t:"Checklist",f:[["what","Tarefa"],["who","Responsável"],["due","Prazo","date"]],g:[["done","Feito"]]},
+money:{t:"Financeiro",f:[["what","Descrição"],["amount","Valor (R$)","number"],["due","Vencimento","date"]],g:[["paid","Pago"],["pre","Pagar antes"]]}
+};
+var S={events:[],cur:null},tab="dash";
+function load(){try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function E(){return S.events.find(function(e){return e.id==S.cur})}
+function $(i){return document.getElementById(i)}
+function brl(n){return "R$ "+Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
+function mkEvent(){
+ var n=prompt("Nomes dos noivos:");if(!n)return;
+ var d=prompt("Data (AAAA-MM-DD):","")||"",p=prompt("Local:","")||"";
+ var e={id:Date.now(),name:n,date:d,place:p,guests:[],timeline:[],suppliers:[],tasks:[],money:[]};
+ S.events.push(e);S.cur=e.id;save();draw();
+}
+function draw(){
+ var sel=$("ev");
+ sel.innerHTML=S.events.length?S.events.map(function(e){return '<option value="'+e.id+'"'+(e.id==S.cur?" selected":"")+">"+esc(e.name)+"</option>"}).join(""):"<option>Nenhum evento</option>";
+ var ev=E();
+ $("nav").innerHTML=Object.keys(T).map(function(k){return '<button class="'+(k==tab?"on":"")+'" data-t="'+k+'"><span>'+IC[k]+'</span>'+SH[k]+"</button>"}).join("");
+ if(!ev){$("info").textContent="";$("cd").innerHTML="";$("form").innerHTML="";$("map").innerHTML="";$("sum").textContent="";$("list").innerHTML='<div class="empty">Toque em “+ Evento” para começar.</div>';return}
+ $("info").textContent=[ev.date&&ev.date.split("-").reverse().join("/"),ev.place].filter(Boolean).join(" · ");
+ var c=T[tab];cd(ev);
+ if(tab=="dash"){$("form").innerHTML="";$("map").innerHTML="";dash();return}
+ $("form").innerHTML=c.f.map(function(f){return '<input id="f_'+f[0]+'" placeholder="'+f[1]+'" type="'+(f[2]||"text")+'"'+(f[2]=="number"?' step="0.01" inputmode="decimal"':"")+">"}).join("")+'<button class="p" id="add">Adicionar</button>';
+ if(tab=="guests")$("form").innerHTML+='<input id="q" placeholder="Buscar convidado…" style="flex-basis:100%">';
+ list();
+}
+function list(){
+ var ev=E(),c=T[tab],a=ev[tab].slice(),q=$("q")?$("q").value.toLowerCase():"";
+ if(tab=="timeline")a.sort(function(x,y){return (x.time||"").localeCompare(y.time||"")});
+ if(q)a=a.filter(function(x){return (x.name||"").toLowerCase().indexOf(q)>=0||String(x.table||"").toLowerCase().indexOf(q)>=0||String(x.phone||"").indexOf(q)>=0});
+ var all=ev[tab],s="";
+ if(tab=="guests")s=all.filter(function(x){return x.rsvp}).length+" confirmados de "+all.length+" · "+all.filter(function(x){return x.in}).length+" já chegaram";
+ if(tab=="tasks")s=all.filter(function(x){return x.done}).length+" de "+all.length+" concluídas";
+ if(tab=="money"){var t=0,p=0;all.forEach(function(x){t+=+x.amount||0;if(x.paid)p+=+x.amount||0});var pre=all.filter(function(x){return x.pre&&!x.paid}).map(function(x){return x.what});s="Contratado "+brl(t)+" · Pago "+brl(p)+" · Falta "+brl(t-p)+(pre.length?" · ⚠ Pagar antes: "+pre.join(", "):"")}
+ $("sum").textContent=s;$("map").innerHTML=tab=="guests"?tmap(all):"";
+ $("list").innerHTML=a.length?a.map(function(x){
+  var main=tab=="money"?x.what+" — "+brl(x.amount):(x.name||x.what||""),
+  sub=c.f.slice(1).map(function(f){return f[0]=="what"||f[0]=="amount"?"":x[f[0]]?f[1]+": "+x[f[0]]:""}).filter(Boolean).join(" · ");
+  if(tab=="timeline"){main=(x.time||"--:--")+"  "+x.what;sub=x.who?"Resp.: "+x.who:""}
+  var done=(tab=="tasks"&&x.done)||(tab=="money"&&x.paid)||(tab=="timeline"&&x.did);
+  return '<div class="card'+(done?" done":"")+(x.in||x.here||x.paid||x.done||x.did?" ok":"")+'"><div class="i"><b>'+esc(main)+"</b><small>"+esc(sub)+'</small></div><div class="tg">'+c.g.map(function(g){return '<button class="'+(x[g[0]]?"on":"")+'" data-g="'+g[0]+'" data-id="'+x.id+'">'+g[1]+"</button>"}).join("")+'</div>'+contact(x)+'<button class="x" data-d="'+x.id+'">×</button></div>'
+ }).join(""):'<div class="empty">Nada por aqui ainda.</div>';
+}
+document.addEventListener("click",function(e){
+ var b=e.target.closest("button");if(!b)return;var ev=E();
+ if(b.dataset.t){tab=b.dataset.t;draw()}
+ else if(b.id=="newEv")mkEvent();
+ else if(b.id=="add"&&ev){var o={id:Date.now()+Math.random()},ok=false;T[tab].f.forEach(function(f){var v=$("f_"+f[0]).value.trim();o[f[0]]=v;if(v)ok=true});if(ok){ev[tab].push(o);save();draw()}}
+ else if(b.dataset.g){var it=ev[tab].find(function(x){return x.id==b.dataset.id});it[b.dataset.g]=!it[b.dataset.g];save();list();draw_tg()}
+ else if(b.dataset.d){if(confirm("Remover item?")){ev[tab]=ev[tab].filter(function(x){return x.id!=b.dataset.d});save();list()}}
+ else if(b.id=="okal"){$("alert").style.display="none"}
+ else if(b.id=="seats"&&ev){var n=parseInt(prompt("Lugares por mesa:",ev.seats||8));if(n>0){ev.seats=n;save();draw()}}
+ else if(b.id=="dl"&&ev){if(confirm("Excluir o evento “"+ev.name+"”?")){S.events=S.events.filter(function(x){return x.id!=ev.id});S.cur=S.events.length?S.events[0].id:null;save();draw()}}
+ else if(b.id=="bk"){var j=JSON.stringify(S);try{navigator.clipboard.writeText(j).then(function(){alert("Backup copiado. Cole em um bloco de notas ou envie por WhatsApp para si mesmo.")})}catch(x){prompt("Copie o backup:",j)}}
+ else if(b.id=="rs"){var t=prompt("Cole aqui o backup:");if(t){try{var d=JSON.parse(t);if(d&&d.events){S=d;save();draw()}}catch(x){alert("Backup inválido.")}}}
+});
+function draw_tg(){}
+function contact(x){var d=String(x.phone||"").replace(/\D/g,"");if(!d)return"";var w=d.length<=11?"55"+d:d;return '<span class="tg"><a href="tel:+'+w+'">📞</a><a href="https://wa.me/'+w+'">💬</a></span>'}
+function tmap(all){var m={};all.forEach(function(x){var k=String(x.table||"").trim()||"Sem mesa";m[k]=m[k]||{n:0,i:0};m[k].n++;if(x.in)m[k].i++});var s=E().seats||8;return '<div class="tg" style="margin-bottom:10px">'+Object.keys(m).sort().map(function(k){var o=m[k],f=s-o.n;if(k=="Sem mesa")return '<span class="chip bad">Sem mesa: '+o.n+'</span>';return '<span class="chip'+(f<0?" bad":"")+'">Mesa '+esc(k)+': '+o.n+'/'+s+' · livres '+Math.max(f,0)+' · presentes '+o.i+'</span>'}).join("")+'</div>'}
+function mins(t){var p=(t||"").split(":");return p.length==2?(+p[0])*60+(+p[1]):null}
+function today(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function beep(){try{var A=window.AudioContext||window.webkitAudioContext,c=new A(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=880;o.start();setTimeout(function(){o.stop()},400)}catch(e){}}
+var shown={};
+function tick(){var ev=E();if(!ev)return;if(!ev.date||ev.date==today()){var n=new Date(),nm=n.getHours()*60+n.getMinutes();ev.timeline.forEach(function(x){var m=mins(x.time);if(m==null||x.did||shown[ev.id+"_"+x.id])return;var d=m-nm;if(d<=5&&d>-30){shown[ev.id+"_"+x.id]=1;var a=$("alert");a.style.display="block";a.innerHTML='<div class="card" style="background:var(--warn);color:#fff;margin:8px"><div class="i"><b>⏰ '+(d>0?"Em "+d+" min":"Agora")+": "+esc(x.what)+'</b><small style="color:#fff">'+esc(x.time)+(x.who?" · "+esc(x.who):"")+'</small></div><button class="x" id="okal" style="color:#fff">OK</button></div>';try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}beep()}})}if(tab=="dash")dash()}
+function cd(ev){var e=$("cd");if(!ev.date){e.innerHTML="";return}var d=Math.round((new Date(ev.date+"T00:00")-new Date(today()+"T00:00"))/864e5);e.innerHTML=d>0?"<b>"+d+"</b><span>"+(d==1?"dia":"dias")+" para o casamento</span>":d==0?"<b>Hoje</b><span>é o grande dia</span>":"<b>"+(-d)+"</b><span>"+(d==-1?"dia":"dias")+" desde o casamento</span>"}
+function dash(){var ev=E();if(!ev)return;var g=ev.guests,sp=ev.suppliers,tot=0,pd=0;ev.money.forEach(function(x){tot+=+x.amount||0;if(x.paid)pd+=+x.amount||0});
+ var inn=g.filter(function(x){return x.in}).length,conf=g.filter(function(x){return x.rsvp}).length,pct=g.length?Math.round(inn/g.length*100):0;
+ var nx=ev.timeline.filter(function(x){return !x.did}).sort(function(a,b){return (a.time||"").localeCompare(b.time||"")})[0];
+ var wait=sp.filter(function(x){return !x.here}).map(function(x){return x.name}),pre=ev.money.filter(function(x){return x.pre&&!x.paid}).map(function(x){return x.what});
+ function tile(n,l,s,w){return '<div class="tile'+(w?" w":"")+'"><b>'+n+'</b><span>'+l+'</span>'+(s?'<span>'+s+'</span>':"")+'</div>'}
+ $("sum").textContent="";
+ $("list").innerHTML='<div class="hero"><div class="big">'+inn+'<small>/'+g.length+'</small></div><div class="lb">convidados presentes · '+conf+' confirmaram</div><div class="bar"><i style="width:'+pct+'%"></i></div></div>'
+ +'<div class="next">'+(nx?'<span class="t">'+esc(nx.time||"--:--")+'</span><div><b>'+esc(nx.what)+'</b><small>'+esc(nx.who||"Sem responsável")+'</small></div>':'<div><b>Nenhuma atividade pendente</b></div>')+'</div>'
+ +'<div class="tiles">'+tile((sp.length-wait.length)+"/"+sp.length,"fornecedores chegaram",wait.length?"faltam: "+esc(wait.join(", ")):"",wait.length>0)+tile(ev.tasks.filter(function(x){return !x.done}).length,"tarefas pendentes","",0)+tile(brl(tot-pd),"falta pagar",pre.length?"antes: "+esc(pre.join(", ")):"",pre.length>0)+'</div>'}
+document.addEventListener("input",function(e){if(e.target.id=="q")list()});
+$("ev").addEventListener("change",function(){S.cur=this.value;save();draw()});
+load();if(!S.cur&&S.events.length)S.cur=S.events[0].id;draw();setInterval(tick,20000);tick();
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script>
+</body>
+</html>

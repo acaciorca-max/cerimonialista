@@ -1,0 +1,1 @@
+# Cerimonialista\nApp offline para cerimonialistas de casamento (PWA). Publique com GitHub Pages.\n
