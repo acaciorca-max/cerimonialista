@@ -76,108 +76,197 @@ nav button.on{color:var(--on);font-weight:700;background:var(--bg)}
 nav button.on span{filter:none;opacity:1}
 #alert{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:30;display:none}
 #alert .card{border-left:0}
+
+h1{font:600 1.7rem/1.2 Georgia,"Iowan Old Style",serif;margin:6px 0 2px;color:#fff}
+.top button{background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:7px 14px;font-size:.85rem}
+.splash{position:fixed;inset:0;z-index:50;background:var(--deep);color:#f4efe4;display:none;align-items:center;justify-content:center;padding:24px;text-align:center}
+.splash .sp{max-width:380px}
+.splash h1{font-size:2.3rem;margin-top:14px}
+.tag{color:#c9d6d0;margin:8px 0 18px}
+.splash ul{list-style:none;padding:0;margin:0 0 26px;text-align:left;display:inline-block}
+.splash li{padding:6px 0}
+.splash .p,.fcard .p{width:100%;flex:none}
+.splash .p{background:var(--gl);color:#24403a}
+.ser{font-family:Georgia,serif;font-size:1.15rem}
+.evc{cursor:pointer}
+.badge{font:600 1rem Georgia,serif;color:var(--on);background:var(--bg);border-radius:12px;padding:8px 10px;text-align:center;white-space:nowrap}
+.fcard{background:var(--card);border-radius:18px;padding:16px}
+.fl{display:block;color:var(--mu);font-size:.85rem;margin-bottom:12px}
+.fl input{display:block;width:100%;margin-top:4px;font-size:1rem}
+.hint{flex-basis:100%;color:var(--mu);font-size:.78rem}
+.syn{flex-basis:100%;text-align:center;color:var(--mu);font-size:.78rem;margin-top:6px}
+#impb{flex:1 1 100%;border:1px dashed var(--ln);border-radius:12px;padding:10px;color:var(--mu)}
+nav{overflow-x:auto}nav button{flex:none;min-width:76px}
 </style>
 </head>
 <body>
 <div id="alert"></div>
-<header><div class="in"><div class="top"><span class="brand">Cerimonialista</span><button id="newEv">+ Evento</button></div>
-<select id="ev"></select><div id="info"></div><div id="cd"></div></div></header>
-<main>
-<div id="form"></div>
-<div id="sum" class="sum"></div>
-<div id="map"></div>
-<div id="list"></div>
-<div class="foot"><button id="bk">Copiar backup</button><button id="rs">Restaurar</button><button id="seats">Lugares/mesa</button><button id="dl">Excluir evento</button></div>
-</main>
+<section id="splash" class="splash"><div class="sp">
+<svg width="84" height="56" viewBox="0 0 84 56" fill="none" stroke="#e3c07f" stroke-width="4"><circle cx="30" cy="28" r="20"/><circle cx="54" cy="28" r="20"/></svg>
+<h1>Cerimonialista</h1>
+<p class="tag">O dia do casamento organizado na palma da mão, mesmo sem internet.</p>
+<ul><li>🎟️ Check-in de convidados e mapa de mesas</li><li>🕐 Alerta para cada momento da cerimônia</li><li>🤝 Fornecedores e pagamentos sob controle</li></ul>
+<button class="p" id="enter">Entrar</button></div></section>
+<header id="hd"></header>
+<main id="main"><div id="form"></div><div id="sum" class="sum"></div><div id="map"></div><div id="list"></div><div class="foot" id="foot"></div></main>
 <nav id="nav"></nav>
+<script src="config.js"></script>
 <script>
-var IC={dash:"📊",guests:"🎟️",timeline:"🕐",suppliers:"🤝",tasks:"✅",money:"💰"},SH={dash:"Painel",guests:"Convidados",timeline:"Agenda",suppliers:"Fornecedores",tasks:"Tarefas",money:"Financeiro"};
-var KEY="cerimonialista_v1";
+var KEY="cerimonialista_v1",S={events:[],cur:null,seen:0,role:"",cfg:{},q:[]},ADM={u:"1234",p:"1234"},SRCH=["guests","padrinhos"],online=false,lastSync="",busy=false,v="splash",tab="dash",edit=null,shown={};
 var T={
-dash:{t:"Painel",f:[],g:[]},
-guests:{t:"Convidados",f:[["name","Nome"],["table","Mesa"],["phone","Telefone"]],g:[["rsvp","Confirmou"],["in","Chegou"]]},
-timeline:{t:"Cronograma",f:[["time","Hora","time"],["what","Atividade"],["who","Responsável"]],g:[["did","Feito"]]},
-suppliers:{t:"Fornecedores",f:[["name","Nome"],["role","Serviço"],["phone","Telefone"]],g:[["here","Chegou"]]},
-tasks:{t:"Checklist",f:[["what","Tarefa"],["who","Responsável"],["due","Prazo","date"]],g:[["done","Feito"]]},
-money:{t:"Financeiro",f:[["what","Descrição"],["amount","Valor (R$)","number"],["due","Vencimento","date"]],g:[["paid","Pago"],["pre","Pagar antes"]]}
+dash:{t:"Painel",i:"📊",f:[],g:[]},
+guests:{t:"Convidados",i:"🎟️",f:[["name","Nome"],["table","Mesa"],["phone","Telefone"]],g:[["rsvp","Confirmou"],["in","Chegou"]]},
+padrinhos:{t:"Padrinhos",i:"👰",f:[["name","Nome"],["role","Função"],["par","Par"],["phone","Telefone"]],g:[["rsvp","Confirmou"],["in","Chegou"]]},
+musicos:{t:"Músicos",i:"🎻",f:[["name","Músico ou banda"],["inst","Instrumento"],["time","Horário","time"],["phone","Telefone"]],g:[["here","Chegou"],["som","Som testado"]]},
+program:{t:"Programação",i:"📜",f:[["ord","Ordem","number"],["what","Momento"],["music","Música"],["who","Responsável"]],g:[["did","Feito"]]},
+timeline:{t:"Agenda",i:"🕐",f:[["time","Hora","time"],["what","Atividade"],["who","Responsável"]],g:[["did","Feito"]]},
+suppliers:{t:"Fornecedores",i:"🤝",f:[["name","Nome"],["role","Serviço"],["phone","Telefone"]],g:[["here","Chegou"]]},
+tasks:{t:"Tarefas",i:"✅",f:[["what","Tarefa"],["who","Responsável"],["due","Prazo","date"]],g:[["done","Feito"]]},
+money:{t:"Financeiro",i:"💰",f:[["what","Descrição"],["amount","Valor (R$)","number"],["due","Vencimento","date"]],g:[["paid","Pago"],["pre","Pagar antes"]]}
 };
-var S={events:[],cur:null},tab="dash";
-function load(){try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-function E(){return S.events.find(function(e){return e.id==S.cur})}
 function $(i){return document.getElementById(i)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function brl(n){return "R$ "+Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:2})}
-function mkEvent(){
- var n=prompt("Nomes dos noivos:");if(!n)return;
- var d=prompt("Data (AAAA-MM-DD):","")||"",p=prompt("Local:","")||"";
- var e={id:Date.now(),name:n,date:d,place:p,guests:[],timeline:[],suppliers:[],tasks:[],money:[]};
- S.events.push(e);S.cur=e.id;save();draw();
-}
-function draw(){
- var sel=$("ev");
- sel.innerHTML=S.events.length?S.events.map(function(e){return '<option value="'+e.id+'"'+(e.id==S.cur?" selected":"")+">"+esc(e.name)+"</option>"}).join(""):"<option>Nenhum evento</option>";
- var ev=E();
- $("nav").innerHTML=Object.keys(T).map(function(k){return '<button class="'+(k==tab?"on":"")+'" data-t="'+k+'"><span>'+IC[k]+'</span>'+SH[k]+"</button>"}).join("");
- if(!ev){$("info").textContent="";$("cd").innerHTML="";$("form").innerHTML="";$("map").innerHTML="";$("sum").textContent="";$("list").innerHTML='<div class="empty">Toque em “+ Evento” para começar.</div>';return}
- $("info").textContent=[ev.date&&ev.date.split("-").reverse().join("/"),ev.place].filter(Boolean).join(" · ");
- var c=T[tab];cd(ev);
- if(tab=="dash"){$("form").innerHTML="";$("map").innerHTML="";dash();return}
- $("form").innerHTML=c.f.map(function(f){return '<input id="f_'+f[0]+'" placeholder="'+f[1]+'" type="'+(f[2]||"text")+'"'+(f[2]=="number"?' step="0.01" inputmode="decimal"':"")+">"}).join("")+'<button class="p" id="add">Adicionar</button>';
- if(tab=="guests")$("form").innerHTML+='<input id="q" placeholder="Buscar convidado…" style="flex-basis:100%">';
- list();
-}
-function list(){
- var ev=E(),c=T[tab],a=ev[tab].slice(),q=$("q")?$("q").value.toLowerCase():"";
+function today(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function normDate(s){s=String(s||"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;var m=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);return m?m[3]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[1]).slice(-2):""}
+function days(d){return Math.round((new Date(d+"T00:00")-new Date(today()+"T00:00"))/864e5)}
+function fmt(d){return new Date(d+"T00:00").toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric"})}
+function mins(t){var p=(t||"").split(":");return p.length==2?(+p[0])*60+(+p[1]):null}
+function E(){return S.events.find(function(e){return e.id==S.cur})}
+function A(){return S.role=="adm"}
+function uid(){return "i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function body(o){var b={};Object.keys(o).forEach(function(k){if(k!="id")b[k]=o[k]});return b}
+function fix(e){e.id=String(e.id).replace(/\./g,"_");e.date=normDate(e.date);Object.keys(T).forEach(function(k){if(k!="dash"){e[k]=e[k]||[];e[k].forEach(function(x){x.id=String(x.id).replace(/\./g,"_")})}})}
+function load(){try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}S.cfg=S.cfg||{};S.q=S.q||[];S.role=S.role||"";S.events.forEach(fix)}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function DB(){return String(window.CERI_DB||S.cfg.url||"").replace(/\/+$/,"")}
+function enq(m,p,b){S.q.push({m:m,p:p,b:b});save();flush().then(stTxt)}
+function put(p,b){enq("PUT",p,b)}function del(p){enq("DELETE",p)}function patch(p,b){enq("PATCH",p,b)}
+function flush(){if(!DB()||busy)return Promise.resolve();busy=true;
+ function step(){if(!S.q.length)return Promise.resolve();var o=S.q[0];
+  return fetch(DB()+"/"+o.p+".json",{method:o.m,body:o.m=="DELETE"?undefined:JSON.stringify(o.b)}).then(function(r){if(!r.ok)throw 0;S.q.shift();save();return step()})}
+ return step().then(function(){busy=false;online=true}).catch(function(){busy=false;online=false})}
+function toRemote(e){var o={meta:{name:e.name,date:e.date,place:e.place,seats:e.seats||8}};Object.keys(T).forEach(function(k){if(k!="dash"&&e[k].length){o[k]={};e[k].forEach(function(x){o[k][x.id]=body(x)})}});return o}
+function fromRemote(k,d){var m=d.meta||{},e={id:k,name:m.name||"",date:m.date||"",place:m.place||"",seats:m.seats||8};Object.keys(T).forEach(function(t){if(t!="dash")e[t]=Object.keys(d[t]||{}).map(function(i){return Object.assign({id:i},d[t][i])})});return e}
+function upload(){var o={};S.events.forEach(function(e){o[e.id]=toRemote(e)});enq("PUT","events",o)}
+function pull(){if(!DB())return Promise.resolve();
+ return flush().then(function(){if(S.q.length)return;
+  return fetch(DB()+"/events.json").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+   online=true;lastSync=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+   if(!d){if(S.events.length&&A())return upload()}
+   else S.events=Object.keys(d).filter(function(k){return d[k]&&d[k].meta}).map(function(k){return fromRemote(k,d[k])});
+   save();refresh()})}).catch(function(){online=false;stTxt()})}
+function refresh(){if(v=="home"){if(document.activeElement&&document.activeElement.id=="qe")return;home()}else if(v=="ev"){if(E()){if(tab=="dash")dash(E());else list(E())}else render()}stTxt()}
+function stTxt(){var e=$("syn");if(!e)return;e.textContent=!DB()?"Somente neste aparelho (sem sincronização)":online?(S.q.length?S.q.length+" alterações a enviar":"Sincronizado às "+lastSync):"Sem conexão"+(S.q.length?" · "+S.q.length+" alterações a enviar":"")}
+function go(n,r){if(r||n!==v)history[r?"replaceState":"pushState"]({v:n},"");v=n;render();scrollTo(0,0)}
+function stats(e){var t=0,p=0;e.money.forEach(function(x){t+=+x.amount||0;if(x.paid)p+=+x.amount||0});
+ return{gt:e.guests.length,gc:e.guests.filter(function(x){return x.rsvp}).length,gi:e.guests.filter(function(x){return x.in}).length,tk:e.tasks.filter(function(x){return !x.done}).length,fal:t-p}}
+function cdH(d,l){return d>0?"<b>"+d+"</b><span>"+(d==1?"dia":"dias")+" "+l+"</span>":d==0?"<b>Hoje</b><span>é o grande dia</span>":"<b>"+(-d)+"</b><span>"+(d==-1?"dia":"dias")+" desde o casamento</span>"}
+function hd(top,title,info,cd){$("hd").innerHTML='<div class="in"><div class="top">'+top+'</div><h1>'+title+'</h1><div id="info">'+info+'</div><div id="cd">'+(cd||"")+'</div></div>'}
+function render(){var sp=v=="splash",ev=E();
+ if(!S.role&&!sp)v="login";
+ if(v=="ev"&&!ev)v="home";
+ $("splash").style.display=sp?"flex":"none";$("hd").style.display=$("main").style.display=sp?"none":"";$("nav").style.display=v=="ev"?"flex":"none";
+ if(sp)return;
+ ["form","map","foot"].forEach(function(i){$(i).innerHTML=""});$("sum").textContent="";
+ if(v=="home")home();else if(v=="new")formEv();else if(v=="login")loginV();else{
+  hd('<button id="back">‹ Eventos</button>'+(A()?'<button id="editEv">Editar</button>':""),T[tab].t,esc([ev.name,ev.date&&fmt(ev.date),ev.place].filter(Boolean).join(" · ")),ev.date?cdH(days(ev.date),"para o casamento"):"");
+  $("nav").innerHTML=Object.keys(T).map(function(k){return '<button class="'+(k==tab?"on":"")+'" data-t="'+k+'"><span>'+T[k].i+'</span>'+T[k].t+"</button>"}).join("");var on=$("nav").querySelector(".on");if(on)on.scrollIntoView({inline:"center",block:"nearest"});
+  tabView(ev);$("foot").innerHTML=(A()?'<button id="dl">Excluir evento</button>':"")+'<div id="syn" class="syn"></div>';stTxt()}}
+function home(){
+ var es=S.events.slice().sort(function(a,b){function k(e){return e.date?(days(e.date)>=0?"0":"2")+e.date:"1"}return k(a)<k(b)?-1:1});
+ var up=es.filter(function(e){return e.date&&days(e.date)>=0})[0],c=0,t=0,f=0;
+ S.events.forEach(function(e){var s=stats(e);c+=s.gc;t+=s.gt;f+=s.fal});
+ hd('<span class="brand">Cerimonialista</span>'+(A()?'<button id="newEv">+ Novo evento</button>':""),"Seus casamentos",S.events.length+(S.events.length==1?" evento cadastrado":" eventos cadastrados"),up?cdH(days(up.date),"para "+esc(up.name)):"");
+ if(!S.events.length){$("list").innerHTML='<div class="empty">'+(A()?'Nenhum evento ainda.<br>Toque em “+ Novo evento” para começar.':'Nenhum evento encontrado.<br>Verifique a conexão e aguarde a sincronização.')+'</div>';homeFoot();return}
+ function tile(n,l){return '<div class="tile"><b>'+n+'</b><span>'+l+'</span></div>'}
+ $("form").style.display="";if(!$("qe"))$("form").innerHTML='<input id="qe" placeholder="Buscar evento pelo nome dos noivos ou local" style="flex-basis:100%">';
+ $("sum").outerHTML='<div id="sum" class="sum"></div>';
+ $("map").innerHTML='<div class="tiles" style="margin-bottom:12px">'+tile(S.events.length,"eventos")+tile(c+"/"+t,"confirmados")+tile(brl(f),"falta pagar")+"</div>";
+ $("list").innerHTML=es.filter(function(e){var s=($("qe")?$("qe").value:"").toLowerCase();return !s||(e.name+" "+e.place).toLowerCase().indexOf(s)>=0}).map(function(e){var s=stats(e),d=e.date?days(e.date):null,b=d==null?"Sem data":d>0?d+(d==1?" dia":" dias"):d==0?"Hoje":"Realizado";
+  return '<div class="card evc" data-open="'+e.id+'"><div class="i"><b class="ser">'+esc(e.name)+'</b><small>'+esc([e.date&&fmt(e.date),e.place].filter(Boolean).join(" · "))+'</small><div class="tg" style="margin-top:8px"><span class="chip">'+s.gc+'/'+s.gt+' confirmados</span><span class="chip">'+s.tk+' tarefas</span></div></div><div class="badge">'+b+'</div></div>'}).join("");
+ homeFoot()}
+function homeFoot(){$("foot").innerHTML=(A()?'<button id="bk">Copiar backup</button><button id="rs">Restaurar</button><button id="cfg">Sincronização</button>':"")+'<button id="out">Sair</button><div id="syn" class="syn"></div>';stTxt()}
+function loginV(){hd('<span class="brand">Cerimonialista</span>',"Acesso","Entre como administrador ou busque o seu evento.");
+ $("list").innerHTML='<div class="fcard"><label class="fl">Usuário<input id="lu" autocapitalize="off" autocomplete="username"></label><label class="fl">Senha<input id="lp" type="password" autocomplete="current-password"></label><button class="p" id="login">Entrar como administrador</button></div><div class="empty">ou</div><div class="fcard"><b class="ser">Sou da equipe</b><p style="color:var(--mu)">Veja a programação, faça check-in e marque o que já foi feito. Não precisa de senha.</p><button class="p" id="guest">Buscar meu evento</button></div>'}
+function doImport(t){var ev=E();if(!ev||!A())return;var L=t.replace(/^\uFEFF/,"").split(/\r?\n/).map(function(l){return l.trim()}).filter(Boolean);if(!L.length)return;
+ var d=t.indexOf(";")>=0?";":t.indexOf("\t")>=0?"\t":",",f=T[tab].f,first=L[0].split(d)[0].trim().toLowerCase();
+ if(first==f[0][1].toLowerCase()||first=="nome")L.shift();
+ var m={};L.forEach(function(l){var p=l.split(d),o={id:uid()};f.forEach(function(x,i){o[x[0]]=(p[i]||"").trim()});if(o[f[0][0]]){ev[tab].push(o);m[o.id]=body(o)}});
+ var n=Object.keys(m).length;if(!n){alert("Nenhuma linha válida encontrada.");return}
+ save();patch("events/"+ev.id+"/"+tab,m);tabView(ev);alert(n+" itens importados.")}
+function formEv(){var e=edit?S.events.find(function(x){return x.id==edit}):{};
+ hd('<button id="back">‹ Voltar</button>',edit?"Editar evento":"Novo evento","");
+ $("list").innerHTML='<div class="fcard"><label class="fl">Nome dos noivos<input id="n_name" value="'+esc(e.name||"")+'" placeholder="Ana e João"></label><label class="fl">Data do casamento<input id="n_date" type="date" value="'+esc(e.date||"")+'"></label><label class="fl">Local<input id="n_place" value="'+esc(e.place||"")+'" placeholder="Salão, cidade"></label><label class="fl">Lugares por mesa<input id="n_seats" type="number" inputmode="numeric" min="1" value="'+(e.seats||8)+'"></label><button class="p" id="saveEv">'+(edit?"Salvar alterações":"Criar evento")+'</button></div>'}
+function saveEv(){var n=$("n_name").value.trim();if(!n){alert("Digite o nome dos noivos.");return}
+ var d=normDate($("n_date").value),p=$("n_place").value.trim(),s=parseInt($("n_seats").value)||8;
+ if(edit){var e=S.events.find(function(x){return x.id==edit});e.name=n;e.date=d;e.place=p;e.seats=s;save();put("events/"+e.id+"/meta",{name:n,date:d,place:p,seats:s});history.back()}
+ else{var e2={id:String(Date.now()),name:n,date:d,place:p,seats:s,guests:[],padrinhos:[],musicos:[],program:[],timeline:[],suppliers:[],tasks:[],money:[]};S.events.push(e2);S.cur=e2.id;tab="dash";save();put("events/"+e2.id,toRemote(e2));go("ev",1)}}
+function tabView(ev){var c=T[tab];
+ if(tab=="dash")return dash(ev);
+ var s=SRCH.indexOf(tab)>=0?'<input id="q" placeholder="Buscar por nome, mesa ou telefone" style="flex-basis:100%">':"";
+ if(A())s=c.f.map(function(f){return '<input id="f_'+f[0]+'" placeholder="'+f[1]+'" type="'+(f[2]||"text")+'"'+(f[2]=="number"?' step="0.01" inputmode="decimal"':"")+">"}).join("")+'<button class="p" id="add">Adicionar</button><button id="impb">Importar lista (.txt)</button><small class="hint">Importar: um por linha — '+c.f.map(function(f){return f[1]}).join(";")+'</small><input type="file" id="imp" accept=".txt,.csv,text/plain" hidden>'+s;
+ $("form").style.display=s?"":"none";$("form").innerHTML=s;list(ev)}
+function contact(x){var d=String(x.phone||"").replace(/\D/g,"");if(!d)return"";var w=d.length<=11?"55"+d:d;return '<span class="tg"><a href="tel:+'+w+'">📞</a><a href="https://wa.me/'+w+'">💬</a></span>'}
+function tmap(ev){var m={};ev.guests.forEach(function(x){var k=String(x.table||"").trim()||"Sem mesa";m[k]=m[k]||{n:0,i:0};m[k].n++;if(x.in)m[k].i++});var s=ev.seats||8;return '<div class="tg" style="margin-bottom:10px">'+Object.keys(m).sort().map(function(k){var o=m[k],f=s-o.n;if(k=="Sem mesa")return '<span class="chip bad">Sem mesa: '+o.n+'</span>';return '<span class="chip'+(f<0?" bad":"")+'">Mesa '+esc(k)+': '+o.n+'/'+s+' · livres '+Math.max(f,0)+' · presentes '+o.i+'</span>'}).join("")+'</div>'}
+function list(ev){var c=T[tab],a=ev[tab].slice(),all=ev[tab],q=$("q")?$("q").value.toLowerCase():"",s="";
+ if(tab=="program")a.sort(function(x,y){return (+x.ord||999)-(+y.ord||999)});
  if(tab=="timeline")a.sort(function(x,y){return (x.time||"").localeCompare(y.time||"")});
- if(q)a=a.filter(function(x){return (x.name||"").toLowerCase().indexOf(q)>=0||String(x.table||"").toLowerCase().indexOf(q)>=0||String(x.phone||"").indexOf(q)>=0});
- var all=ev[tab],s="";
+ if(q)a=a.filter(function(x){return Object.keys(x).map(function(k){return x[k]}).join(" ").toLowerCase().indexOf(q)>=0});
  if(tab=="guests")s=all.filter(function(x){return x.rsvp}).length+" confirmados de "+all.length+" · "+all.filter(function(x){return x.in}).length+" já chegaram";
+ if(["padrinhos","musicos","program","suppliers","timeline"].indexOf(tab)>=0)s=T[tab].g.map(function(g){return all.filter(function(x){return x[g[0]]}).length+"/"+all.length+" "+g[1].toLowerCase()}).join(" · ");
  if(tab=="tasks")s=all.filter(function(x){return x.done}).length+" de "+all.length+" concluídas";
  if(tab=="money"){var t=0,p=0;all.forEach(function(x){t+=+x.amount||0;if(x.paid)p+=+x.amount||0});var pre=all.filter(function(x){return x.pre&&!x.paid}).map(function(x){return x.what});s="Contratado "+brl(t)+" · Pago "+brl(p)+" · Falta "+brl(t-p)+(pre.length?" · ⚠ Pagar antes: "+pre.join(", "):"")}
- $("sum").textContent=s;$("map").innerHTML=tab=="guests"?tmap(all):"";
+ $("sum").textContent=s;$("map").innerHTML=tab=="guests"?tmap(ev):"";
  $("list").innerHTML=a.length?a.map(function(x){
   var main=tab=="money"?x.what+" — "+brl(x.amount):(x.name||x.what||""),
-  sub=c.f.slice(1).map(function(f){return f[0]=="what"||f[0]=="amount"?"":x[f[0]]?f[1]+": "+x[f[0]]:""}).filter(Boolean).join(" · ");
+  sub=c.f.slice(1).map(function(f){return f[0]=="what"||f[0]=="amount"||f[0]=="ord"?"":x[f[0]]?f[1]+": "+x[f[0]]:""}).filter(Boolean).join(" · ");
   if(tab=="timeline"){main=(x.time||"--:--")+"  "+x.what;sub=x.who?"Resp.: "+x.who:""}
-  var done=(tab=="tasks"&&x.done)||(tab=="money"&&x.paid)||(tab=="timeline"&&x.did);
-  return '<div class="card'+(done?" done":"")+(x.in||x.here||x.paid||x.done||x.did?" ok":"")+'"><div class="i"><b>'+esc(main)+"</b><small>"+esc(sub)+'</small></div><div class="tg">'+c.g.map(function(g){return '<button class="'+(x[g[0]]?"on":"")+'" data-g="'+g[0]+'" data-id="'+x.id+'">'+g[1]+"</button>"}).join("")+'</div>'+contact(x)+'<button class="x" data-d="'+x.id+'">×</button></div>'
- }).join(""):'<div class="empty">Nada por aqui ainda.</div>';
-}
-document.addEventListener("click",function(e){
- var b=e.target.closest("button");if(!b)return;var ev=E();
- if(b.dataset.t){tab=b.dataset.t;draw()}
- else if(b.id=="newEv")mkEvent();
- else if(b.id=="add"&&ev){var o={id:Date.now()+Math.random()},ok=false;T[tab].f.forEach(function(f){var v=$("f_"+f[0]).value.trim();o[f[0]]=v;if(v)ok=true});if(ok){ev[tab].push(o);save();draw()}}
- else if(b.dataset.g){var it=ev[tab].find(function(x){return x.id==b.dataset.id});it[b.dataset.g]=!it[b.dataset.g];save();list();draw_tg()}
- else if(b.dataset.d){if(confirm("Remover item?")){ev[tab]=ev[tab].filter(function(x){return x.id!=b.dataset.d});save();list()}}
- else if(b.id=="okal"){$("alert").style.display="none"}
- else if(b.id=="seats"&&ev){var n=parseInt(prompt("Lugares por mesa:",ev.seats||8));if(n>0){ev.seats=n;save();draw()}}
- else if(b.id=="dl"&&ev){if(confirm("Excluir o evento “"+ev.name+"”?")){S.events=S.events.filter(function(x){return x.id!=ev.id});S.cur=S.events.length?S.events[0].id:null;save();draw()}}
- else if(b.id=="bk"){var j=JSON.stringify(S);try{navigator.clipboard.writeText(j).then(function(){alert("Backup copiado. Cole em um bloco de notas ou envie por WhatsApp para si mesmo.")})}catch(x){prompt("Copie o backup:",j)}}
- else if(b.id=="rs"){var t=prompt("Cole aqui o backup:");if(t){try{var d=JSON.parse(t);if(d&&d.events){S=d;save();draw()}}catch(x){alert("Backup inválido.")}}}
-});
-function draw_tg(){}
-function contact(x){var d=String(x.phone||"").replace(/\D/g,"");if(!d)return"";var w=d.length<=11?"55"+d:d;return '<span class="tg"><a href="tel:+'+w+'">📞</a><a href="https://wa.me/'+w+'">💬</a></span>'}
-function tmap(all){var m={};all.forEach(function(x){var k=String(x.table||"").trim()||"Sem mesa";m[k]=m[k]||{n:0,i:0};m[k].n++;if(x.in)m[k].i++});var s=E().seats||8;return '<div class="tg" style="margin-bottom:10px">'+Object.keys(m).sort().map(function(k){var o=m[k],f=s-o.n;if(k=="Sem mesa")return '<span class="chip bad">Sem mesa: '+o.n+'</span>';return '<span class="chip'+(f<0?" bad":"")+'">Mesa '+esc(k)+': '+o.n+'/'+s+' · livres '+Math.max(f,0)+' · presentes '+o.i+'</span>'}).join("")+'</div>'}
-function mins(t){var p=(t||"").split(":");return p.length==2?(+p[0])*60+(+p[1]):null}
-function today(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
-function beep(){try{var A=window.AudioContext||window.webkitAudioContext,c=new A(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=880;o.start();setTimeout(function(){o.stop()},400)}catch(e){}}
-var shown={};
-function tick(){var ev=E();if(!ev)return;if(!ev.date||ev.date==today()){var n=new Date(),nm=n.getHours()*60+n.getMinutes();ev.timeline.forEach(function(x){var m=mins(x.time);if(m==null||x.did||shown[ev.id+"_"+x.id])return;var d=m-nm;if(d<=5&&d>-30){shown[ev.id+"_"+x.id]=1;var a=$("alert");a.style.display="block";a.innerHTML='<div class="card" style="background:var(--warn);color:#fff;margin:8px"><div class="i"><b>⏰ '+(d>0?"Em "+d+" min":"Agora")+": "+esc(x.what)+'</b><small style="color:#fff">'+esc(x.time)+(x.who?" · "+esc(x.who):"")+'</small></div><button class="x" id="okal" style="color:#fff">OK</button></div>';try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}beep()}})}if(tab=="dash")dash()}
-function cd(ev){var e=$("cd");if(!ev.date){e.innerHTML="";return}var d=Math.round((new Date(ev.date+"T00:00")-new Date(today()+"T00:00"))/864e5);e.innerHTML=d>0?"<b>"+d+"</b><span>"+(d==1?"dia":"dias")+" para o casamento</span>":d==0?"<b>Hoje</b><span>é o grande dia</span>":"<b>"+(-d)+"</b><span>"+(d==-1?"dia":"dias")+" desde o casamento</span>"}
-function dash(){var ev=E();if(!ev)return;var g=ev.guests,sp=ev.suppliers,tot=0,pd=0;ev.money.forEach(function(x){tot+=+x.amount||0;if(x.paid)pd+=+x.amount||0});
- var inn=g.filter(function(x){return x.in}).length,conf=g.filter(function(x){return x.rsvp}).length,pct=g.length?Math.round(inn/g.length*100):0;
+  if(tab=="program")main=(x.ord?x.ord+". ":"")+(x.what||"");
+  var done=(tab=="tasks"&&x.done)||(tab=="money"&&x.paid)||x.did;
+  return '<div class="card'+(done?" done":"")+(x.in||x.here||x.paid||x.done||x.did?" ok":"")+'"><div class="i"><b>'+esc(main)+"</b><small>"+esc(sub)+'</small></div><div class="tg">'+c.g.map(function(g){return '<button class="'+(x[g[0]]?"on":"")+'" data-g="'+g[0]+'" data-id="'+x.id+'">'+g[1]+"</button>"}).join("")+'</div>'+contact(x)+(A()?'<button class="x" data-d="'+x.id+'">×</button>':"")+'</div>'
+ }).join(""):'<div class="empty">Nada por aqui ainda.</div>'}
+function dash(ev){var s=stats(ev),sp=ev.suppliers,pct=s.gt?Math.round(s.gi/s.gt*100):0;
  var nx=ev.timeline.filter(function(x){return !x.did}).sort(function(a,b){return (a.time||"").localeCompare(b.time||"")})[0];
  var wait=sp.filter(function(x){return !x.here}).map(function(x){return x.name}),pre=ev.money.filter(function(x){return x.pre&&!x.paid}).map(function(x){return x.what});
- function tile(n,l,s,w){return '<div class="tile'+(w?" w":"")+'"><b>'+n+'</b><span>'+l+'</span>'+(s?'<span>'+s+'</span>':"")+'</div>'}
- $("sum").textContent="";
- $("list").innerHTML='<div class="hero"><div class="big">'+inn+'<small>/'+g.length+'</small></div><div class="lb">convidados presentes · '+conf+' confirmaram</div><div class="bar"><i style="width:'+pct+'%"></i></div></div>'
+ function tile(n,l,s2,w){return '<div class="tile'+(w?" w":"")+'"><b>'+n+'</b><span>'+l+'</span>'+(s2?'<span>'+s2+'</span>':"")+'</div>'}
+ $("form").style.display="none";
+ $("list").innerHTML='<div class="hero"><div class="big">'+s.gi+'<small>/'+s.gt+'</small></div><div class="lb">convidados presentes · '+s.gc+' confirmaram</div><div class="bar"><i style="width:'+pct+'%"></i></div></div>'
  +'<div class="next">'+(nx?'<span class="t">'+esc(nx.time||"--:--")+'</span><div><b>'+esc(nx.what)+'</b><small>'+esc(nx.who||"Sem responsável")+'</small></div>':'<div><b>Nenhuma atividade pendente</b></div>')+'</div>'
- +'<div class="tiles">'+tile((sp.length-wait.length)+"/"+sp.length,"fornecedores chegaram",wait.length?"faltam: "+esc(wait.join(", ")):"",wait.length>0)+tile(ev.tasks.filter(function(x){return !x.done}).length,"tarefas pendentes","",0)+tile(brl(tot-pd),"falta pagar",pre.length?"antes: "+esc(pre.join(", ")):"",pre.length>0)+'</div>'}
-document.addEventListener("input",function(e){if(e.target.id=="q")list()});
-$("ev").addEventListener("change",function(){S.cur=this.value;save();draw()});
-load();if(!S.cur&&S.events.length)S.cur=S.events[0].id;draw();setInterval(tick,20000);tick();
+ +'<div class="tiles">'+tile((sp.length-wait.length)+"/"+sp.length,"fornecedores chegaram",wait.length?"faltam: "+esc(wait.join(", ")):"",wait.length>0)+tile(s.tk,"tarefas pendentes","",0)+tile(brl(s.fal),"falta pagar",pre.length?"antes: "+esc(pre.join(", ")):"",pre.length>0)+'</div>'}
+function beep(){try{var A=window.AudioContext||window.webkitAudioContext,c=new A(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=880;o.start();setTimeout(function(){o.stop()},400)}catch(e){}}
+function tick(){var n=new Date(),nm=n.getHours()*60+n.getMinutes();
+ S.events.forEach(function(ev){if(!(ev.date==today()||(!ev.date&&ev.id==S.cur)))return;
+  ev.timeline.forEach(function(x){var m=mins(x.time);if(m==null||x.did||shown[ev.id+"_"+x.id])return;var d=m-nm;
+   if(d<=5&&d>-30){shown[ev.id+"_"+x.id]=1;var a=$("alert");a.style.display="block";a.innerHTML='<div class="card" style="background:var(--warn);color:#fff;margin:8px"><div class="i"><b>⏰ '+(d>0?"Em "+d+" min":"Agora")+": "+esc(x.what)+'</b><small style="color:#fff">'+esc(ev.name)+" · "+esc(x.time)+(x.who?" · "+esc(x.who):"")+'</small></div><button class="x" id="okal" style="color:#fff">OK</button></div>';try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}beep()}})});
+ if(v=="ev"&&tab=="dash")dash(E())}
+document.addEventListener("click",function(e){
+ var o=e.target.closest("[data-open]");if(o&&!e.target.closest("button")){S.cur=o.dataset.open;save();tab="dash";go("ev");return}
+ var b=e.target.closest("button");if(!b)return;var ev=E(),id=b.id;
+ if(b.dataset.t){tab=b.dataset.t;render();scrollTo(0,0)}
+ else if(id=="enter"){S.seen=1;save();go(S.role?"home":"login",1)}
+ else if(id=="newEv"){edit=null;go("new")}
+ else if(id=="editEv"){edit=ev.id;go("new")}
+ else if(id=="login"){if($("lu").value.trim()==ADM.u&&$("lp").value==ADM.p){S.role="adm";save();go("home",1);pull()}else alert("Usuário ou senha incorretos.")}
+ else if(id=="guest"){S.role="eq";save();go("home",1);pull()}
+ else if(id=="out"){S.role="";save();go("login",1)}
+ else if(id=="cfg"){if(window.CERI_DB)alert("Sincronização ativa: "+window.CERI_DB);else{var u=prompt("Endereço do banco (Firebase Realtime Database):",S.cfg.url||"");if(u!==null){S.cfg.url=u.trim();save();pull()}}}
+ else if(id=="impb")$("imp").click();
+ else if(id=="back")history.back();
+ else if(id=="saveEv")saveEv();
+ else if(id=="okal")$("alert").style.display="none";
+ else if(id=="add"&&ev){var o2={id:uid()},ok=false;T[tab].f.forEach(function(f){var x=$("f_"+f[0]).value.trim();o2[f[0]]=x;if(x)ok=true});if(ok){ev[tab].push(o2);save();put("events/"+ev.id+"/"+tab+"/"+o2.id,body(o2));tabView(ev)}}
+ else if(b.dataset.g){var it=ev[tab].find(function(x){return x.id==b.dataset.id});it[b.dataset.g]=!it[b.dataset.g];save();put("events/"+ev.id+"/"+tab+"/"+it.id+"/"+b.dataset.g,it[b.dataset.g]);list(ev)}
+ else if(b.dataset.d){if(confirm("Remover item?")){ev[tab]=ev[tab].filter(function(x){return x.id!=b.dataset.d});save();del("events/"+ev.id+"/"+tab+"/"+b.dataset.d);list(ev)}}
+ else if(id=="dl"&&ev){if(confirm("Excluir o evento “"+ev.name+"”?")){S.events=S.events.filter(function(x){return x.id!=ev.id});S.cur=null;save();del("events/"+ev.id);history.back()}}
+ else if(id=="bk"){var j=JSON.stringify({events:S.events});try{navigator.clipboard.writeText(j).then(function(){alert("Backup copiado. Cole em um bloco de notas ou envie por WhatsApp para si mesmo.")})}catch(x){prompt("Copie o backup:",j)}}
+ else if(id=="rs"){var t=prompt("Cole aqui o backup:");if(t){try{var d=JSON.parse(t);if(d&&d.events){S.events=d.events;S.events.forEach(fix);save();upload();render()}}catch(x){alert("Backup inválido.")}}}
+});
+document.addEventListener("input",function(e){if(e.target.id=="q"&&E())list(E());if(e.target.id=="qe")home()});
+document.addEventListener("change",function(e){if(e.target.id!="imp")return;var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){doImport(String(r.result))};r.readAsText(f);e.target.value=""});
+window.addEventListener("popstate",function(e){v=(e.state&&e.state.v)||"home";if(v=="splash")v="home";render();scrollTo(0,0)});
+load();history.replaceState({v:"splash"},"");render();setInterval(tick,20000);tick();pull();setInterval(function(){if(v=="home"||v=="ev")pull()},15000);window.addEventListener("online",pull);document.addEventListener("visibilitychange",function(){if(!document.hidden)pull()});
+if(S.seen)setTimeout(function(){if(v=="splash")go(S.role?"home":"login",1)},2200);
 </script>
 <script>
 if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
